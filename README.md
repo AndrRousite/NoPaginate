@@ -18,21 +18,22 @@ Loading Item           |  Error Item
 
 ### Gradle
 
+
+Beginning with Gradle 3 compile is deprecated.
 ```
-compile 'ru.alexbykov:nopaginate:0.4.3'
+implementation 'ru.alexbykov:nopaginate:0.4.4'
 ```
 
 ### Install
 ```java
   Paginate paginate = new PaginateBuilder()
                 .with(recyclerView)
-                .setCallback(new OnLoadMore() {
+                .setOnLoadMoreListener(new OnLoadMoreListener() {
                     @Override
                     public void onLoadMore() {
-                       // http or db request
+                        //http or db request here
                     }
                 })
-                .setLoadingTriggerThreshold(5)
                 .build();
 ```
 
@@ -45,8 +46,8 @@ You can see example of implementation with MVP [here](https://github.com/NoNews/
 ```java
    paginate.showLoading(show);
    paginate.showError(show);
-   paginate.setPaginateNoMoreItems(set);
-   paginate.unSubscribe(); //Don't forget call it on onDestroy();
+   paginate.setNoMoreItems(set); //Method onLoadMore will not to call
+   paginate.unbind(); //Don't forget call it on onDestroy();
 ```
 
 ### Custom Loading and Error
@@ -64,13 +65,13 @@ public class CustomErrorItem implements ErrorItem {
            }
 
            @Override
-           public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, final OnRepeatListener onRepeatListener) {
+           public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, final OnRepeatListener repeatListener) {
                Button btnRepeat = (Button) holder.itemView.findViewById(R.id.btnRepeat);
                btnRepeat.setOnClickListener(new View.OnClickListener() {
                    @Override
                    public void onClick(View v) {
-                       if (onRepeatListener != null) {
-                           onRepeatListener.onClickRepeat(); //call onLoadMore
+                       if (repeatListener != null) {
+                           repeatListener.onClickRepeat(); //call onLoadMore
                        }
                    }
                });
@@ -82,7 +83,7 @@ public class CustomErrorItem implements ErrorItem {
 #### Custom loading:
 ```java
 public class CustomLoadingItem implements LoadingItem {
-    LoadingItem DEFAULT = new LoadingItem() {
+   
         @Override
         public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
             View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_loading, parent, false);
@@ -91,23 +92,24 @@ public class CustomLoadingItem implements LoadingItem {
         }
         @Override
         public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+   
         }
-    };
+   
 }
 ```
 
-#### Install with custom items
+#### Install with custom items and trigger threshold
 
 ```java
-  Paginate  paginate = new PaginateBuilder()
+  Paginate paginate = new PaginateBuilder()
                 .with(recyclerView)
-                .setCallback(new OnLoadMore() {
+                .setOnLoadMoreListener(new OnLoadMoreListener() {
                     @Override
                     public void onLoadMore() {
-
+                        //http or db request
                     }
                 })
-                .setLoadingTriggerThreshold(5)
+                .setLoadingTriggerThreshold(5) //0 by default
                 .setCustomErrorItem(new CustomErrorItem())
                 .setCustomLoadingItem(new CustomLoadingItem())
                 .build();
@@ -122,22 +124,20 @@ Author: [@MarkoMilos](https://github.com/MarkoMilos)
 We decided to modify it a little, so that developers could easily use it with MVP or Clean Architecture
 
 
-#### Todo
+#### Roadmap
 1. Double-sided pagination
 2. Delegate for ```Presenter``` or ```Interactor```, with implementation Limit/Offset and Page pagination
 3. Unit tests
-4. Refactoring
+4. Wiki
 
 #### Contributing
 
 If you find any bug, or you have suggestions, don't be shy to create [issues](https://github.com/NoNews/NoPaginate/issues) or make a [PRs](https://github.com/NoNews/NoPaginate/pulls) in the `develop` branch.
 You can read contribution guidelines [here](https://github.com/NoNews/NoPaginate/blob/master/CONTRIBUTING.md)
 
-
-
 #### My other libraries:
 1. [NoPermission](https://github.com/NoNews/NoPermission) — Simple Android permission library, consist of only one class
-
+1. [NoRecyclerViewAdapter](https://github.com/NoNews/NoRecyclerViewAdapter) — Simple base adapter for recyclerView
 ### License
 ```
 Copyright 2017 Alex Bykov
